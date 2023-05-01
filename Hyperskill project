@@ -1,0 +1,97 @@
+import random
+
+MIN_STRING_LENGTH = 100
+data_string = ""
+print("Please provide AI some data to learn...")
+print(f"The current data length is 0, 100 symbols left")
+
+# keep asking the user for input strings until the length of the data string is at least MIN_STRING_LENGTH
+while len(data_string) < MIN_STRING_LENGTH:
+    input_string = input("Print a random string containing 0 or 1:\n> ")
+
+    # filter out inappropriate symbols from the input string
+    filtered_input_string = "".join(filter(lambda x: x in ["0", "1"], input_string))
+
+    # append the filtered input string to the data string
+    data_string += filtered_input_string
+
+    # calculate and print the number of symbols entered and the number of symbols left
+    symbols_entered = len(data_string)
+    symbols_left = MIN_STRING_LENGTH - symbols_entered
+    if len(data_string) <= MIN_STRING_LENGTH:
+        print(f"Current data length is {symbols_entered}, {symbols_left} symbols left.")
+
+# output the final data string
+print("Final data string:")
+print(data_string)
+
+
+dict = { "000": [0, 0],
+        "001": [0, 0],
+        "010": [0, 0],
+        "011": [0, 0],
+        "100": [0, 0],
+        "101": [0, 0],
+        "110": [0, 0],
+        "111": [0, 0]
+}
+
+for i in range(len(data_string) - 3):
+     y = data_string[i+3]
+     z = str(data_string[i:i+3])
+     if int(y) == 0:
+         dict[z][0] = dict[z][0] + 1
+     elif int(y) == 1:
+         dict[z][1] = dict[z][1] + 1
+
+
+print("You have $1000. Every time the system successfully predicts your next press, you lose $1. Otherwise, you earn $1. Print \"enough\" to leave the game. Let's go!")
+money = 1000
+while money > 0:
+    predicted_string = ""
+    right = 0
+    new_string = input("Print a random string containing 0 or 1:\n \n")
+    if new_string == "enough":
+        break
+    # filter out inappropriate symbols from the input string
+    filtered_new_string = "".join(filter(lambda x: x in ["0", "1"], new_string))
+    ok_string = filtered_new_string
+    if len(ok_string) < 4:
+        continue
+
+    for x in range(3, len(ok_string)):
+        q = max(dict[str(ok_string[x - 3:x])])
+        f = min(dict[str(ok_string[x - 3:x])])
+        if q == f:
+            v = str(random.choice(["0", "1"]))
+            predicted_string += v
+            if predicted_string[x - 3] == ok_string[x]:
+                right += 1
+        elif q != f:
+            p = str(dict[str(ok_string[x - 3:x])].index(q))
+            predicted_string += p
+            if predicted_string[x - 3] == ok_string[x]:
+                right += 1
+
+    for x in range(3, len(ok_string)):
+        a = ok_string[x]
+        b = str(ok_string[x - 3:x])
+        if int(a) == 0:
+            dict[b][0] = dict[b][0] + 1
+        elif int(a) == 1:
+            dict[b][1] = dict[b][1] + 1
+
+    for j in range(len(ok_string) - 3):
+        y = ok_string[j + 3]
+        z = str(ok_string[j:j + 3])
+        if int(y) == 0:
+            dict[z][0] = dict[z][0] + 1
+        elif int(y) == 1:
+            dict[z][1] = dict[z][1] + 1
+
+    money = money - right - right + len(predicted_string)
+
+    print(f"predictions: \n{predicted_string} \n")
+    print(f"Computer guessed {right} out of {len(predicted_string)} symbols right ({right/len(predicted_string) * 100} %)")
+    print(f"Your balance is now ${money}\n")
+print("Game over!")
